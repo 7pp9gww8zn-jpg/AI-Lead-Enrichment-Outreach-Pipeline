@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Lead Enrichment & Personalized Outreach Pipeline</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--slate-50);
+      color: var(--slate-800);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .header { background: #ffffff; border-bottom: 1px solid var(--slate-200); position: sticky; top: 0; z-index: 30; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .header-inner { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; height: 4rem; display: flex; align-items: center; justify-content: space-between; }
+    .brand-group { display: flex; align-items: center; gap: 0.75rem; }
+    .brand-icon { width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; background: linear-gradient(135deg, #2563eb, #06b6d4); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.25rem; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.25); }
+    .brand-title { font-size: 1.125rem; font-weight: 700; color: var(--slate-900); display: flex; align-items: center; gap: 0.5rem; }
+    .badge { font-size: 0.75rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 9999px; border: 1px solid transparent; display: inline-flex; align-items: center; }
+    .badge-primary { background: var(--primary-light); color: #1e40af; border-color: var(--primary-border); }
+    .badge-emerald { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+    .badge-purple { background: #f3e8ff; color: #6b21a8; border-color: #d8b4fe; }
+    .status-pill { display: flex; align-items: center; gap: 0.5rem; background: var(--slate-100); padding: 0.375rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 500; color: var(--slate-600); }
+    .pulse-dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: #2563eb; }
+    .btn { cursor: pointer; font-size: 0.75rem; font-weight: 600; padding: 0.5rem 0.875rem; border-radius: 0.5rem; border: 1px solid transparent; transition: all 0.15s ease-in-out; display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; text-decoration: none; }
+    .btn-dark { background: var(--slate-900); color: white; }
+    .btn-dark:hover { background: var(--slate-800); }
+    .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.25); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: var(--slate-100); color: var(--slate-700); border-color: var(--slate-200); }
+    .btn-secondary:hover { background: var(--slate-200); }
+    .main-wrap { max-width: 1280px; width: 100%; margin: 0 auto; padding: 1.5rem; flex: 1; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .kpi-card { background: white; border: 1px solid var(--slate-200); border-radius: 0.75rem; padding: 1rem; display: flex; align-items: center; gap: 0.875rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+    .kpi-icon { width: 2.5rem; height: 2.5rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 1.125rem; font-weight: bold; }
+    .kpi-label { font-size: 0.75rem; color: var(--slate-500); font-weight: 500; }
+    .kpi-val { font-size: 1.125rem; font-weight: 700; color: var(--slate-900); }
+    .kpi-sub { font-size: 0.75rem; color: #16a34a; font-weight: 500; }
+    .studio-grid { display: grid; grid-template-columns: 1fr 1fr 1.1fr; gap: 1.5rem; }
+    @media (max-width: 1024px) { .studio-grid { grid-template-columns: 1fr; } }
+    .panel { background: white; border: 1px solid var(--slate-200); border-radius: 1rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; overflow: hidden; }
+    .panel-head { background: var(--slate-50); border-bottom: 1px solid var(--slate-200); padding: 0.875rem 1rem; display: flex; align-items: center; justify-content: space-between; }
+    .panel-step { display: flex; align-items: center; gap: 0.5rem; }
+    .step-num { width: 1.5rem; height: 1.5rem; border-radius: 9999px; background: var(--slate-200); color: var(--slate-700); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .panel-title { font-size: 0.875rem; font-weight: 700; color: var(--slate-900); }
+    .panel-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; flex: 1; }
+    .form-group { display: flex; flex-direction: column; gap: 0.25rem; }
+    .form-label { font-size: 0.75rem; font-weight: 600; color: var(--slate-700); }
+    .form-input, .form-select, .form-textarea { font-size: 0.75rem; border: 1px solid var(--slate-300); background: #ffffff; border-radius: 0.5rem; padding: 0.5rem 0.625rem; color: var(--slate-800); font-family: inherit; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .trace-item { font-size: 0.75rem; padding: 0.625rem; border-radius: 0.5rem; border: 1px solid var(--slate-200); background: var(--slate-50); display: flex; align-items: center; justify-content: space-between; transition: all 0.2s ease; }
+    .trace-item.active { border-color: #93c5fd; background: #eff6ff; color: #1e3a8a; }
+    .trace-dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: var(--slate-400); display: inline-block; margin-right: 0.375rem; }
+    .trace-dot.blue { background: #2563eb; }
+    .trace-dot.green { background: #10b981; }
+    .trace-dot.purple { background: #a855f7; }
+    .mono-box { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.7rem; background: var(--slate-100); padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--slate-200); }
+    .output-box { background: white; border: 1px solid var(--slate-200); border-radius: 0.75rem; padding: 1rem; font-size: 0.75rem; line-height: 1.6; color: var(--slate-700); flex: 1; overflow-y: auto; max-height: 280px; }
+    .tab-btn { font-size: 0.75rem; font-weight: 600; padding: 0.375rem 0.75rem; border-radius: 0.375rem; border: none; background: transparent; color: var(--slate-600); cursor: pointer; }
+    .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+    .score-chip { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; background: white; border: 1px solid var(--slate-200); border-radius: 0.5rem; font-size: 0.7rem; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="brand-icon">⚡</div>
+        <div>
+          <div class="brand-title">OutreachForge <span class="badge badge-primary">Clay + LLM Cold Pipeline</span></div>
+          <div class="brand-sub">B2B Deep Web Scraping, Signal Extraction & 1-to-1 Cold Outreach Automation</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div class="status-pill"><div class="pulse-dot"></div><span>Integration: <strong>Clay + GPT-4o + Instantly</strong></span></div>
+        <button type="button" id="btnReset" class="btn btn-dark">Reset Demo</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-wrap">
+    <!-- Top KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background: #eff6ff; color: #2563eb;">🚀</div>
+        <div>
+          <div class="kpi-label">Avg Cold Email Reply Rate</div>
+          <div class="kpi-val">8.4% <span class="kpi-sub">(vs 1.2% benchmark)</span></div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background: #ecfdf5; color: #059669;">🔍</div>
+        <div>
+          <div class="kpi-label">Web Signal Depth</div>
+          <div class="kpi-val">12+ Data Points <span style="font-size:0.75rem; color:#64748b;">Per Lead</span></div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background: #faf5ff; color: #9333ea;">🛡️</div>
+        <div>
+          <div class="kpi-label">Spam & Deliverability Score</div>
+          <div class="kpi-val">99.8% Inbox-Safe</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background: #fefce8; color: #ca8a04;">⏱️</div>
+        <div>
+          <div class="kpi-label">Cost per Enriched Lead</div>
+          <div class="kpi-val">$0.035 <span class="kpi-sub">(-88% vs SDR)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3-Column Studio -->
+    <div class="studio-grid">
+      <!-- Col 1: Lead Target Input -->
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-step"><div class="step-num">1</div><div class="panel-title">Target Prospect & Domain</div></div>
+          <span style="font-size:0.75rem; color:#64748b;">Inbound Trigger</span>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label class="form-label">Preset High-Converting ICP Leads</label>
+            <select id="leadSelect" class="form-select">
+              <option value="fintech">Fintech VP of Growth (Series B SaaS)</option>
+              <option value="ecommerce">E-Commerce Founder (DTC Shopify Plus)</option>
+              <option value="hrtech">HR-Tech Head of Talent (Remote Global)</option>
+              <option value="logistics">Supply Chain COO (Enterprise Logistics)</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Contact Name</label>
+              <input type="text" id="targetName" value="Alex Rivera" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Job Title</label>
+              <input type="text" id="targetTitle" value="VP of Growth & Acquisition" class="form-input">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Company Name</label>
+              <input type="text" id="targetCompany" value="NovaPay Financial" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Company Domain</label>
+              <input type="text" id="targetDomain" value="novapay.io" class="form-input">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Target Pain Point / Offer Angle</label>
+            <input type="text" id="targetAngle" value="Checkout Drop-off & Real-time Fraud Latency" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Raw Scraped Web Snippet / Hiring Signal</label>
+            <textarea id="rawSnippet" rows="4" class="form-textarea">NovaPay just raised $22M Series B led by Index. Recently posted 4 job openings for senior fraud ML engineers. Website hero copy states: 'Sub-second cross-border settlement for APAC ecommerce merchants.' CEO recently posted about scaling friction-free 3DS2 checkout.</textarea>
+          </div>
+
+          <button type="button" id="btnRunPipeline" class="btn btn-primary" style="padding: 0.75rem; font-size: 0.8125rem; margin-top: auto;">
+            <span id="btnRunText">⚡ Run Deep Enrichment & Synthesis</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Col 2: AI Web Scraping & Signal Extraction -->
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-step"><div class="step-num">2</div><div class="panel-title">Scraper & Clay Enrichment</div></div>
+          <span class="badge badge-primary">Multi-Source</span>
+        </div>
+        <div class="panel-body">
+          <div style="display:flex; flex-direction:column; gap:0.5rem;">
+            <div id="step1" class="trace-item"><span><span id="dot1" class="trace-dot"></span> 1. Domain Scrape & Tech Stack Detect</span><span id="t1" style="font-family:monospace; color:#64748b;">0ms</span></div>
+            <div id="step2" class="trace-item"><span><span id="dot2" class="trace-dot"></span> 2. Hiring & Funding Signal Mining</span><span id="t2" style="font-family:monospace; color:#64748b;">--</span></div>
+            <div id="step3" class="trace-item"><span><span id="dot3" class="trace-dot"></span> 3. Persona Pain Point Synthesis</span><span id="t3" style="font-family:monospace; color:#64748b;">--</span></div>
+            <div id="step4" class="trace-item"><span><span id="dot4" class="trace-dot"></span> 4. 1-to-1 Icebreaker Generation</span><span id="t4" style="font-family:monospace; color:#64748b;">--</span></div>
+          </div>
+
+          <div style="background:var(--slate-50); border:1px solid var(--slate-200); border-radius:0.75rem; padding:1rem; display:flex; flex-direction:column; gap:0.75rem; flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:0.7rem; font-weight:700; color:#475569; text-transform:uppercase;">Extracted Clay Signals</span>
+              <span id="intentScore" class="badge badge-emerald">High Intent (96/100)</span>
+            </div>
+
+            <div class="mono-box">
+              <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;"><span style="color:#64748b;">Trigger Event:</span><strong id="jsonTrigger" style="color:#0f172a;">$22M Series B / Scaling 3DS2</strong></div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;"><span style="color:#64748b;">Tech Stack:</span><strong id="jsonTech" style="color:#0f172a;">Stripe, Segment, Next.js, AWS</strong></div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;"><span style="color:#64748b;">Decision Persona:</span><strong id="jsonPersona" style="color:#0f172a;">Revenue & Growth Leader</strong></div>
+              <div style="display:flex; justify-content:space-between;"><span style="color:#64748b;">Matched Case Study:</span><strong id="jsonCaseStudy" style="color:#2563eb;">Fintech +4.2% Checkout CVR</strong></div>
+            </div>
+
+            <div class="score-chip">
+              <span style="color:#64748b;">Spam Word Filter:</span>
+              <strong style="color:#16a34a;">0 Trigger Words Found (Clean)</strong>
+            </div>
+
+            <div style="font-size:0.7rem; color:#64748b; border-top:1px solid var(--slate-200); padding-top:0.5rem; display:flex; justify-content:space-between;">
+              <span>Instantly.ai Sync: <strong style="color:#0f172a;">Ready for Campaign #412</strong></span>
+              <span style="color:#2563eb; font-weight:600;">✓ Formatted</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Col 3: Multi-Touch Sequence Output -->
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-step"><div class="step-num">3</div><div class="panel-title">Generated Multi-Touch Copy</div></div>
+          <div style="display:flex; gap:0.25rem; background:var(--slate-200); padding:0.15rem; border-radius:0.375rem;">
+            <button type="button" id="tabEmail" class="tab-btn active">Email 1</button>
+            <button type="button" id="tabFollowup" class="tab-btn">Follow-up</button>
+            <button type="button" id="tabLinkedIn" class="tab-btn">LinkedIn</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div style="background:var(--slate-50); border:1px solid var(--slate-200); border-radius:0.5rem; padding:0.625rem; font-size:0.75rem;">
+            <div style="margin-bottom:0.25rem;"><strong style="color:#64748b;">To:</strong> <span id="outTo" style="color:#0f172a;">alex@novapay.io</span></div>
+            <div><strong style="color:#64748b;">Subject:</strong> <span id="outSubject" style="color:#0f172a; font-weight:700;">quick q regarding NovaPay's 3DS2 checkout latency</span></div>
+          </div>
+
+          <div id="outBody" class="output-box">
+            <p id="outSalutation" style="font-weight:700; margin-bottom:0.5rem; color:#0f172a;">Hey Alex,</p>
+            <div id="outContent" style="display:flex; flex-direction:column; gap:0.5rem;">
+              <p>Saw NovaPay's recent $22M Series B announcement—congrats on scaling sub-second cross-border payments across APAC.</p>
+              <p>Noticed your team is currently hiring 4 ML fraud engineers. Most Series B fintechs we speak with find that aggressive 3DS2 rules inadvertently drop checkout completion by 3-5% for good customers.</p>
+              <p>We built an autonomous smart routing model that helped PayGlide recover $140k/mo in false-positive declines without increasing chargebacks.</p>
+              <p>Open to taking a look at a 2-minute breakdown of how they structured it?</p>
+            </div>
+            <p style="margin-top:0.75rem; color:#334155;">Best,<br><strong style="color:#0f172a;">Benjamin</strong></p>
+          </div>
+
+          <!-- Bottom Actions -->
+          <div style="display:flex; gap:0.5rem;">
+            <button type="button" id="btnPushCRM" class="btn btn-dark" style="flex:1; padding:0.625rem;"><span>Sync to Instantly / Smartlead</span></button>
+            <button type="button" id="btnCopyCopy" class="btn btn-secondary" style="padding:0.625rem;">Copy Copy</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Technical Pipeline Workflow Guide -->
+    <div style="background:white; border:1px solid var(--slate-200); border-radius:1rem; padding:1.5rem; margin-top:1.5rem; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--slate-100); padding-bottom:0.75rem;">
+        <div>
+          <h3 style="font-size:0.9375rem; font-weight:700; color:#0f172a;">Why Upwork Clients Hire For This Exact Pipeline</h3>
+          <p style="font-size:0.75rem; color:#64748b; margin-top:0.125rem;">Replaces $5k/mo manual SDR agencies with high-relevance autonomous scraping and verified delivery</p>
+        </div>
+        <span class="badge badge-primary">Highest Volume Upwork Category (2026)</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-top:1rem;">
+        <div style="background:var(--slate-50); border:1px solid var(--slate-200); border-radius:0.75rem; padding:1rem;">
+          <div style="font-size:0.625rem; font-weight:700; color:#2563eb; text-transform:uppercase; margin-bottom:0.25rem;">Module 1 &bull; Scraping</div>
+          <div style="font-size:0.8125rem; font-weight:700; color:#0f172a; margin-bottom:0.25rem;">Headless Browser Crawler</div>
+          <p style="font-size:0.75rem; color:#475569;">Extracts metadata, founder blog posts, job boards, and tech stack from live domains.</p>
+        </div>
+        <div style="background:var(--slate-50); border:1px solid var(--slate-200); border-radius:0.75rem; padding:1rem;">
+          <div style="font-size:0.625rem; font-weight:700; color:#059669; text-transform:uppercase; margin-bottom:0.25rem;">Module 2 &bull; Clay / LLM Triage</div>
+          <div style="font-size:0.8125rem; font-weight:700; color:#0f172a; margin-bottom:0.25rem;">Dynamic Reasoning Table</div>
+          <p style="font-size:0.75rem; color:#475569;">Calculates buying triggers, persona matching, and eliminates non-ICP domains automatically.</p>
+        </div>
+        <div style="background:var(--slate-50); border:1px solid var(--slate-200); border-radius:0.75rem; padding:1rem;">
+          <div style="font-size:0.625rem; font-weight:700; color:#9333ea; text-transform:uppercase; margin-bottom:0.25rem;">Module 3 &bull; Dynamic Copy</div>
+          <div style="font-size:0.8125rem; font-weight:700; color:#0f172a; margin-bottom:0.25rem;">No-AI-Fluff Copywriting</div>
+          <p style="font-size:0.75rem; color:#475569;">Strict constraints prevent generic phrases ("Hope this email finds you well"), yielding 8%+ replies.</p>
+        </div>
+        <div style="background:var(--slate-50); border:1px solid var(--slate-200); border-radius:0.75rem; padding:1rem;">
+          <div style="font-size:0.625rem; font-weight:700; color:#ca8a04; text-transform:uppercase; margin-bottom:0.25rem;">Module 4 &bull; Dispatch</div>
+          <div style="font-size:0.8125rem; font-weight:700; color:#0f172a; margin-bottom:0.25rem;">Instantly / Smartlead Push</div>
+          <p style="font-size:0.75rem; color:#475569;">Automated lead verification, inbox rotation, warmup safety, and CRM status updates.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer style="background:white; border-top:1px solid var(--slate-200); padding:1rem; text-align:center; font-size:0.75rem; color:#64748b; margin-top:2rem;">
+    OutreachForge AI B2B Lead Demo &bull; Built for High-Ticket Upwork Automation Proposals
+  </footer>
+
+  <script>
+    const leads = {
+      fintech: {
+        name: "Alex Rivera",
+        title: "VP of Growth & Acquisition",
+        company: "NovaPay Financial",
+        domain: "novapay.io",
+        email: "alex@novapay.io",
+        angle: "Checkout Drop-off & Real-time Fraud Latency",
+        snippet: "NovaPay just raised $22M Series B led by Index. Recently posted 4 job openings for senior fraud ML engineers. Website hero copy states: 'Sub-second cross-border settlement for APAC ecommerce merchants.' CEO recently posted about scaling friction-free 3DS2 checkout.",
+        trigger: "$22M Series B / Scaling 3DS2",
+        tech: "Stripe, Segment, Next.js, AWS",
+        persona: "Revenue & Growth Leader",
+        caseStudy: "Fintech +4.2% Checkout CVR",
+        score: "High Intent (96/100)",
+        subject: "quick q regarding NovaPay's 3DS2 checkout latency",
+        email1: [
+          "Saw NovaPay's recent $22M Series B announcement—congrats on scaling sub-second cross-border payments across APAC.",
+          "Noticed your team is currently hiring 4 ML fraud engineers. Most Series B fintechs we speak with find that aggressive 3DS2 rules inadvertently drop checkout completion by 3-5% for good customers.",
+          "We built an autonomous smart routing model that helped PayGlide recover $140k/mo in false-positive declines without increasing chargebacks.",
+          "Open to taking a look at a 2-minute breakdown of how they structured it?"
+        ],
+        followup: [
+          "Hey Alex, following up on my note regarding checkout friction.",
+          "Putting together a 3-point benchmark report on payment drop-offs across APAC Series B fintechs next Tuesday—happy to include NovaPay's numbers if helpful.",
+          "Worth a brief glance?"
+        ],
+        linkedin: "Hey Alex—congrats on the $22M Series B for NovaPay! Following your expansion in APAC sub-second settlements. Would love to connect."
+      },
+      ecommerce: {
+        name: "Elena Rostova",
+        title: "Founder & Head of Product",
+        company: "Luminary Skin Care",
+        domain: "luminaryskin.co",
+        email: "elena@luminaryskin.co",
+        angle: "Abandoned Cart Recovery & SMS LTV Optimization",
+        snippet: "Luminary Skin reached 120,000 active subscribers on Shopify Plus. Scaling TikTok Shop and Meta ads aggressively. Recent customer review mentions delayed shipping inquiries during holiday drops.",
+        trigger: "120k DTC Subs / Scaling TikTok Ads",
+        tech: "Shopify Plus, Klaviyo, Gorgias, Recharge",
+        persona: "DTC Founder / E-com Operator",
+        caseStudy: "Beauty DTC +22% 60-Day Repeat LTV",
+        score: "High Intent (94/100)",
+        subject: "question on Luminary's repeat purchase rate from TikTok ads",
+        email1: [
+          "Love what you've built with Luminary Skin—reaching 120k subscribers on Shopify Plus while expanding TikTok Shop is super impressive.",
+          "Saw your recent Meta campaign scaling up. Most skincare brands hitting your volume hit a wall where first-time CPA rises while 60-day repeat replenishment lags behind.",
+          "We automated a post-purchase replenishment predictor that boosted 60-day repeat order volume by 22% for GlowBotanics without discounting.",
+          "Worth sending over the flow outline?"
+        ],
+        followup: [
+          "Hey Elena, bumping this briefly—no pressure at all.",
+          "Thought you might like this 60-second Loom showing the replenishment trigger logic GlowBotanics used on Klaviyo.",
+          "Should I drop the link over?"
+        ],
+        linkedin: "Elena, big fan of Luminary Skin's growth on Shopify Plus. Love following your journey building high-retention skincare formulas."
+      },
+      hrtech: {
+        name: "David Chen",
+        title: "Head of People & Global Talent",
+        company: "OmniTeam Global",
+        domain: "omniteam.hr",
+        email: "d.chen@omniteam.hr",
+        angle: "Contractor Compliance & Multi-Country Payroll Sync",
+        snippet: "OmniTeam expanded from 8 to 28 countries in 2026. Hiring 15 remote engineering roles. LinkedIn post from David discussing the pain of local labor law audits across LATAM and SE Asia.",
+        trigger: "Expanded to 28 Countries / Hiring Surge",
+        tech: "Deel, BambooHR, Greenhouse, Slack",
+        persona: "Head of People / Compliance",
+        caseStudy: "SaaS Saved 120h/mo on Global EOR",
+        score: "Urgent Priority (98/100)",
+        subject: "OmniTeam's contractor compliance across LATAM & SE Asia",
+        email1: [
+          "Saw your note on LinkedIn regarding the headache of managing local labor tax audits across 28 countries—totally resonated.",
+          "With OmniTeam scaling 15 remote technical roles right now, manual EOR reconciliation usually eats up 30+ hours every month from people ops teams.",
+          "We set up an automated multi-country compliance checker for CloudWorks that flag tax misclassification risks before contracts are signed.",
+          "Happy to share the template if you're exploring ways to streamline global onboarding this quarter?"
+        ],
+        followup: [
+          "Hey David, quick follow-up. We just updated our 2026 remote contractor compliance matrix for LATAM and APAC.",
+          "Let me know if you want a copy sent over to your team."
+        ],
+        linkedin: "David—loved your insights on navigating global labor law compliance. Would love to connect and follow OmniTeam's expansion."
+      },
+      logistics: {
+        name: "Karen Vance",
+        title: "Chief Operating Officer",
+        company: "Apex Freight Solutions",
+        domain: "apexfreight.com",
+        email: "kvance@apexfreight.com",
+        angle: "Carrier Rate Negotiation & Automated Dispatch Triage",
+        snippet: "Apex Freight handles 14,000 monthly intermodal container moves. Announced new regional hubs in Houston and Rotterdam. Fleet modernization initiative underway.",
+        trigger: "14k Container Moves / Port Expansion",
+        tech: "McLeod TMS, DAT One, Salesforce, Samsara",
+        persona: "C-Level Logistics Operations",
+        caseStudy: "Freight Broker Cut Triage Time 75%",
+        score: "Tier 1 Enterprise (91/100)",
+        subject: "automating rate-quote triage for Apex's Houston & Rotterdam lanes",
+        email1: [
+          "Saw Apex Freight's announcement regarding the new intermodal hubs in Houston and Rotterdam—huge milestone.",
+          "With 14,000 monthly moves, we typically see dispatch teams losing 3-4 hours daily just manually cross-referencing DAT spot rates against carrier contract sheets.",
+          "We engineered an AI rate-matching agent for TranzLogistics that quotes spot loads in under 45 seconds directly inside their TMS.",
+          "Would you be open to a 3-minute video showing how it hooks into McLeod TMS?"
+        ],
+        followup: [
+          "Hi Karen, following up on spot-rate quotation automation for Apex's new lanes.",
+          "Are you open to a brief 5-minute chat next Thursday to see how TranzLogistics reduced deadhead rates by 11%?"
+        ],
+        linkedin: "Karen, great seeing Apex Freight expand into Rotterdam and Houston! Would love to connect with fellow supply chain leaders."
+      }
+    };
+
+    let activeTab = 'email';
+    let currentLeadKey = 'fintech';
+
+    function loadLead(key) {
+      currentLeadKey = key;
+      const data = leads[key];
+      if (!data) return;
+
+      document.getElementById('targetName').value = data.name;
+      document.getElementById('targetTitle').value = data.title;
+      document.getElementById('targetCompany').value = data.company;
+      document.getElementById('targetDomain').value = data.domain;
+      document.getElementById('targetAngle').value = data.angle;
+      document.getElementById('rawSnippet').value = data.snippet;
+
+      document.getElementById('jsonTrigger').textContent = data.trigger;
+      document.getElementById('jsonTech').textContent = data.tech;
+      document.getElementById('jsonPersona').textContent = data.persona;
+      document.getElementById('jsonCaseStudy').textContent = data.caseStudy;
+      document.getElementById('intentScore').textContent = data.score;
+
+      renderOutput();
+    }
+
+    function renderOutput() {
+      const data = leads[currentLeadKey];
+      if (!data) return;
+
+      document.getElementById('outTo').textContent = data.email;
+      document.getElementById('outSubject').textContent = data.subject;
+      document.getElementById('outSalutation').textContent = "Hey " + data.name.split(' ')[0] + ",";
+
+      const outContent = document.getElementById('outContent');
+      outContent.innerHTML = '';
+
+      if (activeTab === 'email') {
+        data.email1.forEach(p => {
+          const pEl = document.createElement('p');
+          pEl.textContent = p;
+          outContent.appendChild(pEl);
+        });
+      } else if (activeTab === 'followup') {
+        data.followup.forEach(p => {
+          const pEl = document.createElement('p');
+          pEl.textContent = p;
+          outContent.appendChild(pEl);
+        });
+      } else if (activeTab === 'linkedin') {
+        const pEl = document.createElement('p');
+        pEl.innerHTML = "<strong>LinkedIn Connection Note (Under 300 Chars):</strong><br><br>" + data.linkedin;
+        outContent.appendChild(pEl);
+      }
+    }
+
+    function runPipeline() {
+      const btn = document.getElementById('btnRunPipeline');
+      const text = document.getElementById('btnRunText');
+      btn.disabled = true;
+      text.textContent = "Scraping & Synthesizing...";
+
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById('dot' + i).className = "trace-dot";
+        document.getElementById('t' + i).textContent = "--";
+        document.getElementById('step' + i).className = "trace-item";
+      }
+
+      setTimeout(() => {
+        document.getElementById('dot1').className = "trace-dot blue";
+        document.getElementById('t1').textContent = "84ms";
+        document.getElementById('step1').className = "trace-item active";
+      }, 250);
+
+      setTimeout(() => {
+        document.getElementById('dot2').className = "trace-dot purple";
+        document.getElementById('t2').textContent = "190ms";
+        document.getElementById('step2').className = "trace-item active";
+      }, 600);
+
+      setTimeout(() => {
+        document.getElementById('dot3').className = "trace-dot blue";
+        document.getElementById('t3').textContent = "260ms";
+        document.getElementById('step3').className = "trace-item active";
+      }, 950);
+
+      setTimeout(() => {
+        document.getElementById('dot4').className = "trace-dot green";
+        document.getElementById('t4').textContent = "395ms";
+        document.getElementById('step4').className = "trace-item active";
+
+        btn.disabled = false;
+        text.textContent = "⚡ Re-Run Enrichment Pipeline";
+
+        const outBox = document.getElementById('outBody');
+        outBox.style.boxShadow = "0 0 0 2px #2563eb";
+        setTimeout(() => { outBox.style.boxShadow = "none"; }, 1000);
+      }, 1300);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('leadSelect').addEventListener('change', (e) => loadLead(e.target.value));
+      document.getElementById('btnReset').addEventListener('click', () => {
+        document.getElementById('leadSelect').value = 'fintech';
+        loadLead('fintech');
+      });
+      document.getElementById('btnRunPipeline').addEventListener('click', runPipeline);
+
+      document.getElementById('tabEmail').addEventListener('click', () => {
+        activeTab = 'email';
+        document.getElementById('tabEmail').className = "tab-btn active";
+        document.getElementById('tabFollowup').className = "tab-btn";
+        document.getElementById('tabLinkedIn').className = "tab-btn";
+        renderOutput();
+      });
+      document.getElementById('tabFollowup').addEventListener('click', () => {
+        activeTab = 'followup';
+        document.getElementById('tabEmail').className = "tab-btn";
+        document.getElementById('tabFollowup').className = "tab-btn active";
+        document.getElementById('tabLinkedIn').className = "tab-btn";
+        renderOutput();
+      });
+      document.getElementById('tabLinkedIn').addEventListener('click', () => {
+        activeTab = 'linkedin';
+        document.getElementById('tabEmail').className = "tab-btn";
+        document.getElementById('tabFollowup').className = "tab-btn";
+        document.getElementById('tabLinkedIn').className = "tab-btn active";
+        renderOutput();
+      });
+
+      document.getElementById('btnPushCRM').addEventListener('click', () => {
+        const email = document.getElementById('outTo').textContent;
+        alert("✅ Lead successfully enriched and pushed to Instantly / Smartlead campaign for " + email + "!");
+      });
+
+      document.getElementById('btnCopyCopy').addEventListener('click', () => {
+        const text = document.getElementById('outBody').innerText;
+        navigator.clipboard.writeText(text).then(() => alert("Copy copied to clipboard!"));
+      });
+
+      loadLead('fintech');
+    });
+  </script>
+</body>
+</html>
